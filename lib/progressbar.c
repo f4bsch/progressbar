@@ -10,10 +10,16 @@
 * on the command line (to stderr).
 */
 
+#ifdef _WIN32
+int tgetent(const char *a, const char*b) {	return -1; }
+int tgetnum(const char *a) { return -1; }
+#else
 #include <termcap.h>  /* tgetent, tgetnum */
+#endif
 #include <assert.h>
 #include <limits.h>
 #include "progressbar.h"
+
 
 ///  How wide we assume the screen is if termcap fails.
 enum { DEFAULT_SCREEN_WIDTH = 80 };
@@ -115,7 +121,7 @@ static int progressbar_max(int x, int y) {
 
 static unsigned int get_screen_width(void) {
   char termbuf[2048];
-  if (tgetent(termbuf, getenv("TERM")) >= 0) {
+    if (tgetent(termbuf, getenv("TERM")) >= 0) {
     return tgetnum("co") /* -2 */;
   } else {
     return DEFAULT_SCREEN_WIDTH;
